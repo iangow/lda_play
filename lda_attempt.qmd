@@ -127,24 +127,18 @@ def get_call_text(call):
 
 ```{python}
 def parse_call(call):
-    call_text = get_call_text(call)
-    
-    # Parse document with SpaCy
-    e_call = nlp(call_text)
-    
-    e_call_doc = []
-    e_call_word_cloud = []
-    # Further cleaning and selection of text characteristics
-    for token in e_call:
-        if not token.is_stop and not token.is_punct and token.pos_ in ["NOUN", "ADJ", "VERB"]: # Retain words that are not a stop word nor punctuation, and only if a Noun, Adjective or Verb
-            
-            # Convert to lower case and retain the lemmatized version 
-            # of the word (this is a string object)
-            e_call_doc.append(token.lemma_.lower()) 
 
-            # Build the WordCloud list
-            e_call_word_cloud.append(token.lemma_.lower()) 
-    return e_call_doc
+    # Parse document with SpaCy
+    e_call = nlp(get_call_text(call))
+    
+    # Further cleaning and selection of text characteristics
+    # Retain words that are not a stop word nor punctuation, 
+    # and only if a noun, adjective or verb
+    # Convert to lower case and retain the lemmatized version 
+    # of the word (a string).
+    return [token.lemma_.lower() for token in e_call
+        if not token.is_stop and not token.is_punct and 
+            token.pos_ in ["NOUN", "ADJ", "VERB"]]
 ```
 
  Build the training corpus 'list of lists'
