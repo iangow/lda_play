@@ -1,7 +1,9 @@
 ---
-title: "Hello, Quarto"
+title: "Topic Modeling of Earnings Calls using LDA"
 format: html
 ---
+
+This material is based on material found [here](https://highdemandskills.com/topic-modeling-lda/#h3-2).
 
 ## Set up your computer
 
@@ -20,7 +22,7 @@ python -m spacy download en_core_web_lg
 
 ## Importing libraries
 
-We first import libraries for requesting and parsing earnings call transcripts (`requests` and `BeautifulSoup`), text pre-processing (`SpaCy`), displaying results (`matplotlib`, `pprint` and `wordcloud`) and LDA (`gensim`).
+We first import libraries for get earnings call transcripts (`pandas` and `sqlalchemy`), text pre-processing (`SpaCy`), displaying results (`matplotlib`, `pprint` and `wordcloud`) and LDA (`gensim`).
 
 ```{python}
 import pandas as pd
@@ -42,9 +44,10 @@ nlp = spacy.load("en_core_web_lg")
 # (ensures sufficient memory)
 nlp.max_length = 1500000 
 ```
+
 ## Sourcing earnings call transcripts
 
-Earnings call transcripts are available from company websites or through third-party providers. One popular source is the Seeking Alpha website, from which recent transcripts are freely available.
+I will use the same tickers as are used on the [original post](https://highdemandskills.com/topic-modeling-lda/#h3-2), but will get a call from 2019 (we don't have data for 2021 in most cases) and get the data from the MCCGR database.
 
 ```{python}
 import re
@@ -64,6 +67,8 @@ call_list = ['ADSK-Q2-2021', 'ANF-Q2-2020', 'APPEF-Q2-2020',
 
 tickers = [call.split("-") for call in call_list]
 ```
+
+I get the list of calls and store them in `calls`.
 
 ```{python}
 engine = create_engine("postgresql://10.101.13.99/crsp")
@@ -91,17 +96,12 @@ calls[['file_name', 'company_ticker', 'start_date']]
 
 ## Text pre-processing
 
-Prepare transcripts for topic modeling by cleaning them (removing special characters and extra spaces), removing stop words and punctuation, lemmatizing, and selecting the parts-of-speech that we wish to retain.
+Following the original source, I’ll keep nouns, adjectives, and verbs—this seems to work well.
 
-We’ll keep nouns, adjectives, and verbs—this seems to work well.
+You can learn more about text pre-processing as a part of the natural language processing workflow [here](https://highdemandskills.com/natural-language-processing-explained-simply/#h2-3).
 
-You can learn more about text pre-processing as a part of the natural language processing workflow here.
-
-We prepare each transcript in turn, by looping through DocList and collecting the results in two lists:
-
-A list of lists, made up of the 36 transcripts forming the training corpus, with each transcript being a list of words. I call this ECallDocuments.
-A single list of all the words in the 36 transcripts, which I use later for illustrating the training corpus as a word cloud. I call this ECallWordCloud.
-Text pre-processing for training corpus
+I prepare each transcript in turn, by looping through `calls` and collecting the results in a list.
+I create `e_call_docs`, a list of lists, made up of the transcripts forming the training corpus, with each transcript being a list of words.
 
 ```{python}
 def get_speaker_data(call):
@@ -119,15 +119,11 @@ def get_speaker_data(call):
     return raw_data
 ```
 
-
-
 ```{python}
 def get_call_text(call):
     df = get_speaker_data(call)
     return " ".join(df['speaker_text'])
 ```
-
-
 
 ```{python}
 def parse_call(call):
@@ -148,8 +144,10 @@ def parse_call(call):
 
             # Build the WordCloud list
             e_call_word_cloud.append(token.lemma_.lower()) 
-    return e_call_doc # Build the training corpus 'list of lists'
+    return e_call_doc
 ```
+
+ Build the training corpus 'list of lists'
 
 ```{python}
 e_call_docs = [parse_call(row) for idx, row in calls.iterrows()]
@@ -157,9 +155,7 @@ e_call_docs = [parse_call(row) for idx, row in calls.iterrows()]
 
 ## Inspecting the training corpus
 
-It’s helpful to have an idea of what the training corpus looks like — there are various ways to do this, but I like using word clouds.
-
-Training corpus word cloud
+It’s helpful to have an idea of what the training corpus looks like---there are various ways to do this, including word clouds.
 
 ```{python}
 def flatten_to_strings(listOfLists):
@@ -191,7 +187,8 @@ The word cloud of the training corpus shows a number of words that you might exp
 
 ## Training the LDA model
 
-To train our LDA model, first, form a dictionary by mapping the training corpus to word IDs. Then, convert the words in each transcript to numbers (text representation) using a bag-of-words approach.
+To train our LDA model, first, form a dictionary by mapping the training corpus to word IDs. 
+Then, convert the words in each transcript to numbers (text representation) using a bag-of-words approach.
 
 Word IDs for training corpus
 
@@ -215,10 +212,9 @@ lda_model = gensim.models.LdaModel(corpus=train_corpus,
 ```
 
 The passes flag refers to the number of iterations through the corpus during training — the higher, the better for defining topics, albeit at the cost of extra processing time.
- We set the flag to `passes=100` to produce better results.
+Following the original page, I set the flag to `passes=100` to produce better results.
 
 I did not use the `LdaMulticore` version of the model, which makes use of parallelization for faster processing, because I encountered the issue described [here](https://github.com/RaRe-Technologies/gensim/issues/2223).
-
 
 ### Observing the topics
 
@@ -229,8 +225,7 @@ You can observe the key words in each topic that results from the training.
 pprint(lda_model.print_topics(num_words=4))
 ```
 
-Use pprint to print in an easier-to-read format---the above code prints the top 4 keywords in each of the 5 topics generated through training:
-
+Use `pprint` to print in an easier-to-read format---the above code prints the top 4 keywords in each of the 5 topics generated through training:
 Also shown is the frequency of each keyword (the decimal number next to each keyword).
 
 How good are these topics?
@@ -242,7 +237,7 @@ To answer this question, let’s evaluate our model results.
 There are several ways to evaluate LDA models, and they’re not all based on numbers.
 Context has a role to play, as does the practical usefulness of the generated topics.
 
-The considerations and challenges of topic model evaluation are discussed further in this article.
+The considerations and challenges of topic model evaluation are discussed further in [this article](https://highdemandskills.com/topic-model-evaluation/).
 
 In terms of quantitative measures, a common way to evaluate LDA models is through the coherence score.
 
