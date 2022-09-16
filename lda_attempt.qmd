@@ -91,7 +91,7 @@ def get_call(doc):
 
 calls = pd.concat(list(map(get_call, tickers)))
 calls.reset_index(drop=True, inplace=True)
-calls[['file_name', 'company_ticker', 'start_date']]
+print(calls[['file_name', 'company_ticker', 'start_date']])
 ```
 
 ## Text pre-processing
