@@ -205,7 +205,7 @@ Since we don't know how many topics are likely to emerge from the training corpu
 num_topics = 5 # Set number of topics
 
 # Train LDA model on the training corpus
-lda_model = gensim.models.LdaMulticore(corpus=train_corpus,
+lda_model = gensim.models.LdaModel(corpus=train_corpus,
             num_topics=num_topics, id2word=ID2word, passes=100)
 ```
 
@@ -249,7 +249,8 @@ We can measure our model's coherence using the CoherenceModel within gensim.
 ```{python}
 # Set up coherence model
 cm = gensim.models.CoherenceModel(model=lda_model, texts=e_call_docs, 
-                                  dictionary=ID2word, coherence='c_v')
+                                  dictionary=ID2word, coherence='c_v', 
+                                  processes = 1)
 ```
 
 ```{python}
