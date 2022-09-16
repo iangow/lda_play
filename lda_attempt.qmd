@@ -1,27 +1,26 @@
 ---
 title: "Topic Modeling of Earnings Calls using LDA"
 format: html
+editor: 
+  markdown: 
+    wrap: sentence
 ---
 
 This material is based on material found [here](https://highdemandskills.com/topic-modeling-lda/#h3-2).
 
 ## Set up your computer
 
-A number of packages are required. 
+A number of packages are required.
 These can be installed using `conda`:
 
-```
-conda install nbformat jupyter spacy gensim wordcloud matplotlib
-```
+    conda install nbformat jupyter spacy gensim wordcloud matplotlib
 
 Use `pip` (e.g., `pip install wordcloud`) if necessary.
 I found I needed to run `conda install matplotlib --update-all` to get `matplotlib` to work with Quarto.
 
 The code also requires a large file (`en_core_web_lg`) from Spacy:
 
-```
-python -m spacy download en_core_web_lg    
-```
+    python -m spacy download en_core_web_lg    
 
 ## Importing libraries
 
@@ -99,7 +98,7 @@ print(calls[['file_name', 'company_ticker', 'start_date']])
 
 ## Text pre-processing
 
-Following the original source, I’ll keep nouns, adjectives, and verbs—this seems to work well.
+Following the original source, I'll keep nouns, adjectives, and verbs---this seems to work well.
 
 You can learn more about text pre-processing as a part of the natural language processing workflow [here](https://highdemandskills.com/natural-language-processing-explained-simply/#h2-3).
 
@@ -144,7 +143,7 @@ def parse_call(call):
             token.pos_ in ["NOUN", "ADJ", "VERB"]]
 ```
 
- Build the training corpus 'list of lists'
+Build the training corpus 'list of lists'
 
 ```{python}
 e_call_docs = [parse_call(row) for idx, row in calls.iterrows()]
@@ -152,7 +151,7 @@ e_call_docs = [parse_call(row) for idx, row in calls.iterrows()]
 
 ## Inspecting the training corpus
 
-It’s helpful to have an idea of what the training corpus looks like---there are various ways to do this, including word clouds.
+It's helpful to have an idea of what the training corpus looks like---there are various ways to do this, including word clouds.
 The original code had a separate list for creating the word cloud, whereas I just use the original list of lists and the `flatten_to_strings` function I supplied [here](https://stackoverflow.com/questions/17864466/flatten-a-list-of-strings-and-lists-of-strings-and-lists-in-python).
 
 ```{python}
@@ -181,11 +180,11 @@ plt.axis("off")
 plt.show()
 ```
 
-The word cloud of the training corpus shows a number of words that you might expect to see in company earnings calls — words related to customers, earnings periods ("year”), financials ("continue" and "growth"), and words to express opinions ("think" and "expect").
+The word cloud of the training corpus shows a number of words that you might expect to see in company earnings calls --- words related to customers, earnings periods ("year"), financials ("continue" and "growth"), and words to express opinions ("think" and "expect").
 
 ## Training the LDA model
 
-To train our LDA model, first, form a dictionary by mapping the training corpus to word IDs. 
+To train our LDA model, first, form a dictionary by mapping the training corpus to word IDs.
 Then, convert the words in each transcript to numbers (text representation) using a bag-of-words approach.
 
 Word IDs for training corpus
@@ -198,8 +197,9 @@ ID2word = corpora.Dictionary(e_call_docs)
 train_corpus = [ID2word.doc2bow(doc) for doc in e_call_docs]
 ```
 
-We use the `gensim` package to generate our LDA model. 
-This requires training the model using our training corpus and selecting the number of topics as an input. Since we don’t know how many topics are likely to emerge from the training corpus, let’s start with 5.
+We use the `gensim` package to generate our LDA model.
+This requires training the model using our training corpus and selecting the number of topics as an input.
+Since we don't know how many topics are likely to emerge from the training corpus, let's start with 5.
 
 ```{python}
 num_topics = 5 # Set number of topics
@@ -209,7 +209,7 @@ lda_model = gensim.models.LdaModel(corpus=train_corpus,
             num_topics=num_topics, id2word=ID2word, passes=100)
 ```
 
-The passes flag refers to the number of iterations through the corpus during training — the higher, the better for defining topics, albeit at the cost of extra processing time.
+The passes flag refers to the number of iterations through the corpus during training --- the higher, the better for defining topics, albeit at the cost of extra processing time.
 Following the original page, I set the flag to `passes=100` to produce better results.
 
 I did not use the `LdaMulticore` version of the model, which makes use of parallelization for faster processing, because I encountered the issue described [here](https://github.com/RaRe-Technologies/gensim/issues/2223).
@@ -223,16 +223,15 @@ You can observe the key words in each topic that results from the training.
 pprint(lda_model.print_topics(num_words=4))
 ```
 
-Use `pprint` to print in an easier-to-read format---the above code prints the top 4 keywords in each of the 5 topics generated through training:
-Also shown is the frequency of each keyword (the decimal number next to each keyword).
+Use `pprint` to print in an easier-to-read format---the above code prints the top 4 keywords in each of the 5 topics generated through training: Also shown is the frequency of each keyword (the decimal number next to each keyword).
 
 How good are these topics?
 
-To answer this question, let’s evaluate our model results.
+To answer this question, let's evaluate our model results.
 
 ## Model evaluation
 
-There are several ways to evaluate LDA models, and they’re not all based on numbers.
+There are several ways to evaluate LDA models, and they're not all based on numbers.
 Context has a role to play, as does the practical usefulness of the generated topics.
 
 The considerations and challenges of topic model evaluation are discussed further in [this article](https://highdemandskills.com/topic-model-evaluation/).
@@ -243,7 +242,7 @@ The coherence score of an LDA model measures the degree of semantic similarity b
 
 All else equal, a higher coherence score is better, as it indicates a higher degree of likeness in the meaning of the words within each topic.
 
-We can measure our model’s coherence using the CoherenceModel within gensim.
+We can measure our model's coherence using the CoherenceModel within gensim.
 
 ### Calculating model coherence
 
@@ -262,5 +261,5 @@ print('\nCoherence Score:', coherence_lda)
 print('-'*50)
 ```
 
-We choose coherence='c_v' as our coherence method, which has been shown to be effective and is a popular choice. Using this method, coherence scores between 0 and 1 are typical.
-
+We choose coherence='c_v' as our coherence method, which has been shown to be effective and is a popular choice.
+Using this method, coherence scores between 0 and 1 are typical.
