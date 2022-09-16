@@ -11,8 +11,11 @@ A number of packages are required.
 These can be installed using `conda`:
 
 ```
-conda install nbformat jupyter spacy gensim wordcloud
+conda install nbformat jupyter spacy gensim wordcloud matplotlib
 ```
+
+Use `pip` (e.g., `pip install wordcloud`) if necessary.
+I found I needed to run `conda install matplotlib --update-all` to get `matplotlib` to work with Quarto.
 
 The code also requires a large file (`en_core_web_lg`) from Spacy:
 
