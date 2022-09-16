@@ -150,6 +150,7 @@ e_call_docs = [parse_call(row) for idx, row in calls.iterrows()]
 ## Inspecting the training corpus
 
 It’s helpful to have an idea of what the training corpus looks like---there are various ways to do this, including word clouds.
+The original code had a separate list for creating the word cloud, whereas I just use the original list of lists and the `flatten_to_strings` function I supplied [here](https://stackoverflow.com/questions/17864466/flatten-a-list-of-strings-and-lists-of-strings-and-lists-in-python).
 
 ```{python}
 def flatten_to_strings(listOfLists):
