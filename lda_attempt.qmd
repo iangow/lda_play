@@ -1,5 +1,6 @@
 ---
 title: "Topic Modeling of Earnings Calls using LDA"
+author: Ian D. Gow
 format: html
 editor: 
   markdown: 
