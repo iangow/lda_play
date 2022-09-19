@@ -143,8 +143,8 @@ def parse_call(call):
     # Convert to lower case and retain the lemmatized version 
     # of the word (a string).
     return [token.lemma_.lower() for token in e_call
-        if not token.is_stop and not token.is_punct and 
-            token.pos_ in ["NOUN", "ADJ", "VERB"]]
+                if not token.is_stop and not token.is_punct and 
+                    token.pos_ in ["NOUN", "ADJ", "VERB"]]
 ```
 
 Build the training corpus 'list of lists'
