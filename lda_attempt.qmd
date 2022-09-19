@@ -195,7 +195,7 @@ Word IDs for training corpus
 
 ```{python}
 # Map training corpus to IDs
-ID2word = corpora.Dictionary(e_call_docs)
+ID2word = Dictionary(e_call_docs)
 
 # Convert all transcripts in training corpus using bag-of-words
 train_corpus = [ID2word.doc2bow(doc) for doc in e_call_docs]
@@ -209,8 +209,8 @@ Since we don't know how many topics are likely to emerge from the training corpu
 num_topics = 5 # Set number of topics
 
 # Train LDA model on the training corpus
-lda_model = gensim.models.LdaModel(corpus=train_corpus,
-            num_topics=num_topics, id2word=ID2word, passes=100)
+lda_model = LdaModel(corpus=train_corpus, num_topics=num_topics, 
+                     id2word=ID2word, passes=100)
 ```
 
 The passes flag refers to the number of iterations through the corpus during training---the higher, the better for defining topics, albeit at the cost of extra processing time.
@@ -252,9 +252,8 @@ We can measure our model's coherence using the CoherenceModel within gensim.
 
 ```{python}
 # Set up coherence model
-cm = gensim.models.CoherenceModel(model=lda_model, texts=e_call_docs, 
-                                  dictionary=ID2word, coherence='c_v', 
-                                  processes = 1)
+cm = CoherenceModel(model=lda_model, texts=e_call_docs, 
+                    dictionary=ID2word, coherence='c_v', processes = 1)
 ```
 
 ```{python}
