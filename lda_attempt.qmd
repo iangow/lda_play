@@ -30,16 +30,18 @@ We first import libraries for get earnings call transcripts (`pandas` and `sqlal
 import pandas as pd
 from pandas import to_datetime
 from sqlalchemy import create_engine
-import gensim
-import gensim.corpora as corpora
-from gensim import models
 import matplotlib.pyplot as plt
+
+from gensim.corpora import Dictionary
+from gensim.models import LdaModel, CoherenceModel
+
 import spacy
 from pprint import pprint
 from wordcloud import WordCloud
-from mpl_toolkits import mplot3d
-import matplotlib.pyplot as plt
 
+```
+
+```{python}
 nlp = spacy.load("en_core_web_lg")
 
 # In case max_length is set to lower than this
