@@ -117,10 +117,12 @@ def get_speaker_data(call):
             speaker_number, speaker_text
         FROM streetevents.speaker_data
         WHERE context='qa' AND file_name='%s' AND last_update = '%s'
+        
     """ % (call['file_name'], call['last_update'])
-    raw_data = pd.read_sql(sql_get_call_text, engine)
-    raw_data['last_update'] =  raw_data['last_update'].apply(lambda d: to_datetime(str(d)))
-    return raw_data
+    
+    df = pd.read_sql(sql_get_call_text, engine)
+    df['last_update'] = df['last_update'].apply(lambda d: to_datetime(str(d)))
+    return df
 ```
 
 ```{python}
