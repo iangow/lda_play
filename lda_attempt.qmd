@@ -175,16 +175,18 @@ def flatten_to_strings(listOfLists):
 ```
 
 ```{python}
-ECallWordCloud = flatten_to_strings(e_call_docs)
+# NB. 'join' method used to convert the documents list to text format
+ECallWordCloud = ','.join(flatten_to_strings(e_call_docs))
 
 # Generate and plot WordCloud for full training corpus
-wordcloud = WordCloud(background_color="white").generate(','.join(ECallWordCloud)) # NB. 'join' method used to convert the documents list to text format
+wordcloud = WordCloud(background_color="white").generate(ECallWordCloud) 
+
 plt.imshow(wordcloud, interpolation='bilinear')
 plt.axis("off")
 plt.show()
 ```
 
-The word cloud of the training corpus shows a number of words that you might expect to see in company earnings calls --- words related to customers, earnings periods ("year"), financials ("continue" and "growth"), and words to express opinions ("think" and "expect").
+The word cloud of the training corpus shows a number of words that you might expect to see in company earnings calls---words related to customers, earnings periods ("year"), financials ("continue" and "growth"), and words to express opinions ("think" and "expect").
 
 ## Training the LDA model
 
